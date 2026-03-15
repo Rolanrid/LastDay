@@ -1,0 +1,41 @@
+# 1. 编译产物与中间文件（必须忽略）
+Binaries/
+Build/
+Intermediate/
+DerivedDataCache/
+Saved/
+
+# 2. 本地编辑器配置（因人而异）
+.vsconfig
+/Config/LocalStats.ini
+/Config/DefaultEditorPerProjectUserSettings.ini
+/Config/DefaultGameUserSettings.ini  # 玩家的图形设置不应提交
+/Config/DefaultInput.ini             # 除非你统一管理输入映射，否则建议忽略
+
+# 3. IDE相关文件（各自生成）
+.vscode/
+.vs/
+*.sln
+*.csproj
+*.user
+*.opensdf
+*.sdf
+*.suo
+*.xcodeproj
+*.xcworkspace
+
+# 4. 日志与崩溃报告（临时文件）
+**/Saved/Logs/
+**/Saved/Crashes/
+**/Saved/Autosaves/
+
+# 5. Mac系统文件（跨平台协作时）
+.DS_Store
+__MACOSX
+
+# 6. 大内存映射文件（调试用）
+*.memdump
+
+# 7. 第三方插件临时文件（如果插件有自己的缓存）
+/Plugins/**/Intermediate/
+/Plugins/**/Binaries/
