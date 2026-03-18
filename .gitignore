@@ -6,13 +6,13 @@ DerivedDataCache/
 Saved/
 
 # 2. 本地编辑器配置（因人而异）
-.vsconfig
 /Config/LocalStats.ini
 /Config/DefaultEditorPerProjectUserSettings.ini
 /Config/DefaultGameUserSettings.ini  # 玩家的图形设置不应提交
 /Config/DefaultInput.ini             # 除非你统一管理输入映射，否则建议忽略
 
 # 3. IDE相关文件（各自生成）
+.vsconfig
 .vscode/
 .vs/
 *.sln
