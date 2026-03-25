@@ -10,7 +10,7 @@ class ABaseProjectile;
 class ATurret;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class UTurretSocketComponent : public USceneComponent
+class UTurretSocketComponent : public UStaticMeshComponent
 {
     GENERATED_BODY()
 
@@ -20,16 +20,17 @@ public:
     /** 尝试开火，由炮塔每帧调用 */
     void TryFire(float DeltaTime);
 
+    /** 所属炮塔 */
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    ATurret* ownerTurret;
+
 protected:
     virtual void BeginPlay() override;
 
-    /** 所属炮塔 */
-    UPROPERTY()
-    ATurret *ownerTurret;
 
     /** 当前锁定目标 */
     UPROPERTY()
-    AActor *currentTarget;
+    AActor* currentTarget;
 
     /** 开火冷却计时器 */
     float cooldownRemaining;
@@ -52,9 +53,7 @@ protected:
 
 private:
     /** 检测是否有敌人在前方扇形内 */
-    AActor *FindTargetInCone();
-
-    UStaticMeshComponent *cylinderMesh; // TODO 应该是一个模型，这里是白模
+    AActor* FindTargetInCone();
 
     /** 发射子弹 */
     void Fire();

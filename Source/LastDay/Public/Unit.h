@@ -11,8 +11,8 @@ UCLASS()
 class LASTDAY_API AUnit : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AUnit();
 
@@ -27,7 +27,7 @@ protected:
 	uint64_t hp; // 应该用一个component来承载
 	uint64_t armor;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

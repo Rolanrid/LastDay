@@ -9,12 +9,20 @@
 
 UTurretSocketComponent::UTurretSocketComponent()
 {
-    fireAngle = 30.0f;
-    fireRange = 1200.0f;
-    projectileSpeed = 2000.0f;
-    cooldownRemaining = 0.0f;
+    // 设置组件的默认属性
+    PrimaryComponentTick.bCanEverTick = false;
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire!"));
+    // 设置碰撞预设（可选）
+    SetCollisionProfileName(TEXT("BlockAllDynamic"));
+
+    // 设置默认模型（可选：使用引擎自带的圆柱体作为占位模型）
+    static ConstructorHelpers::FObjectFinder<UStaticMesh> defaultMesh(
+        TEXT("/Engine/BasicShapes/Cylinder")
+    );
+    if (defaultMesh.Succeeded())
+    {
+        SetStaticMesh(defaultMesh.Object);
+    }
 }
 
 void UTurretSocketComponent::BeginPlay()
@@ -43,16 +51,16 @@ void UTurretSocketComponent::TryFire(float deltaTime)
     }
 }
 
-AActor *UTurretSocketComponent::FindTargetInCone()
+AActor* UTurretSocketComponent::FindTargetInCone()
 {
     if (!ownerTurret) return nullptr;
 
     // 获取炮塔检测到的敌人列表（可从炮塔获取，也可自行检测）
-    TArray<AActor *> candidates;
+    TArray<AActor*> candidates;
     // 此处简化：直接使用炮塔的检测结果，或者自行用Overlap检测
     // 为了演示，假设炮塔有一个公开的检测结果函数
     // 或者我们直接在组件内进行球形检测（这里选择自行检测以保持独立）
-    UWorld *World = GetWorld();
+    UWorld* World = GetWorld();
     if (!World) return nullptr;
 
     TArray<FOverlapResult> overlaps;
@@ -75,7 +83,7 @@ AActor *UTurretSocketComponent::FindTargetInCone()
 
     for (const FOverlapResult& overlap : overlaps)
     {
-        AActor *Actor = overlap.GetActor();
+        AActor* Actor = overlap.GetActor();
         if (Actor && Actor->IsA<ATurret>()) // 过滤
         {
             FVector DirToTarget = Actor->GetActorLocation() - SocketLoc;
@@ -98,14 +106,14 @@ void UTurretSocketComponent::Fire()
 {
     if (!projectileClass || !currentTarget) return;
 
-    UWorld *World = GetWorld();
+    UWorld* World = GetWorld();
     if (!World) return;
 
     FVector SpawnLocation = GetComponentLocation();
     FRotator SpawnRotation = (currentTarget->GetActorLocation() - SpawnLocation).Rotation();
 
     // 生成子弹
-    ABaseProjectile *Projectile = World->SpawnActor<ABaseProjectile>(
+    ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(
         projectileClass,
         SpawnLocation,
         SpawnRotation

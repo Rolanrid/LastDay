@@ -10,8 +10,8 @@ ATurret::ATurret()
     fireCooldown = 0.5f;
 
     // 创建静态网格体组件，并设为根组件
-    cylinderMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CylinderMesh"));
-    RootComponent = cylinderMesh;
+    turretRoot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CylinderMesh"));
+    RootComponent = turretRoot;
 
     // 加载引擎内置的圆柱体网格体
     static ConstructorHelpers::FObjectFinder<UStaticMesh> cylinderMeshAsset(
@@ -20,7 +20,7 @@ ATurret::ATurret()
 
     if (cylinderMeshAsset.Succeeded())
     {
-        cylinderMesh->SetStaticMesh(cylinderMeshAsset.Object);
+        turretRoot->SetStaticMesh(cylinderMeshAsset.Object);
     }
     else
     {
@@ -28,8 +28,16 @@ ATurret::ATurret()
         GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire!"));
     }
 
-    UTurretSocketComponent socket
-    AddSocket()
+    for (int32 i = 0; i < 2; ++i)
+    {
+        FName socketName = *FString::Printf(TEXT("TurretSocket_%d"), i);
+        UTurretSocketComponent* socket = CreateDefaultSubobject<UTurretSocketComponent>(socketName);
+        socket->SetupAttachment(RootComponent);
+        socket->SetRelativeLocation(FVector(10, (i * 40 - 20), 40));
+        socket->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f)); // 旋转使圆柱体指向 X 轴
+        socket->SetRelativeScale3D(FVector(0.1f, 0.1f, 1.0f)); // 缩放粗细：保持长度（X）不变，径向（Y、Z）缩小到 0.1
+        sockets.Add(socket);
+    }
 }
 
 void ATurret::BeginPlay()
@@ -44,7 +52,7 @@ void ATurret::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
     // 每帧检测敌人并让发射口尝试开火
     UpdateDetection();
-    for (UTurretSocketComponent *socket : sockets)
+    for (UTurretSocketComponent* socket : sockets)
     {
         if (socket)
         {
@@ -73,7 +81,7 @@ void ATurret::UpdateDetection()
     detectedEnemies.Empty();
     for (const FOverlapResult& Overlap : Overlaps)
     {
-        AActor *Actor = Overlap.GetActor();
+        AActor* Actor = Overlap.GetActor();
         if (Actor && Actor->IsA<ATurret>()) // 过滤敌人类型
         {
             detectedEnemies.Add(Actor);
@@ -81,10 +89,11 @@ void ATurret::UpdateDetection()
     }
 }
 
-void ATurret::AddSocket(UTurretSocketComponent *socket)
+void ATurret::AddSocket(UTurretSocketComponent* socket)
 {
     if (socket && !sockets.Contains(socket))
     {
+        socket->ownerTurret = this; // 设置所属炮塔指针
         sockets.Add(socket);
     }
 }
