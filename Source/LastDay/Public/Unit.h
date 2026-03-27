@@ -16,19 +16,21 @@ public:
 	// Sets default values for this actor's properties
 	AUnit();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	uint64_t GetTeam() const;
+	void SetTeam(uint64_t team);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void OnHit(uint64_t damage);
 
+private:
 	uint64_t id;
 	std::string name;
 	uint64_t team;
 	uint64_t hp; // 应该用一个component来承载
 	uint64_t armor;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 };

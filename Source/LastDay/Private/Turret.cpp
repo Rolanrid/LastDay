@@ -18,18 +18,14 @@ ATurret::ATurret()
         TEXT("/Engine/BasicShapes/Cylinder")
     );
 
-    if (cylinderMeshAsset.Succeeded())
-    {
+    if (cylinderMeshAsset.Succeeded()) {
         turretRoot->SetStaticMesh(cylinderMeshAsset.Object);
-    }
-    else
-    {
+    } else {
         // 如果加载失败，可以在日志中输出警告
         GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire!"));
     }
 
-    for (int32 i = 0; i < 2; ++i)
-    {
+    for (int32 i = 0; i < 2; ++i) {
         FName socketName = *FString::Printf(TEXT("TurretSocket_%d"), i);
         UTurretSocketComponent* socket = CreateDefaultSubobject<UTurretSocketComponent>(socketName);
         socket->SetupAttachment(RootComponent);
@@ -52,10 +48,8 @@ void ATurret::Tick(float DeltaTime)
     Super::Tick(DeltaTime);
     // 每帧检测敌人并让发射口尝试开火
     UpdateDetection();
-    for (UTurretSocketComponent* socket : sockets)
-    {
-        if (socket)
-        {
+    for (UTurretSocketComponent* socket : sockets) {
+        if (socket) {
             socket->TryFire(DeltaTime);
         }
     }
@@ -64,27 +58,27 @@ void ATurret::Tick(float DeltaTime)
 void ATurret::UpdateDetection()
 {
     // 简单球形检测，获取范围内的敌人
-    TArray<FOverlapResult> Overlaps;
-    FCollisionShape Shape = FCollisionShape::MakeSphere(detectionRadius);
-    FCollisionQueryParams QueryParams;
-    QueryParams.AddIgnoredActor(this);
+    TArray<FOverlapResult> overlaps;
+    FCollisionShape shape = FCollisionShape::MakeSphere(detectionRadius);
+    FCollisionQueryParams queryParams;
+    queryParams.AddIgnoredActor(this);
 
     GetWorld()->OverlapMultiByChannel(
-        Overlaps,
+        overlaps,
         GetActorLocation(),
         FQuat::Identity,
         ECC_Pawn,   // 适合检测角色的通道
-        Shape,
-        QueryParams
+        shape,
+        queryParams
     );
 
     detectedEnemies.Empty();
-    for (const FOverlapResult& Overlap : Overlaps)
-    {
-        AActor* Actor = Overlap.GetActor();
-        if (Actor && Actor->IsA<ATurret>()) // 过滤敌人类型
+    for (const FOverlapResult& overlap : overlaps) {
+        AActor* actor = overlap.GetActor();
+        if (actor && actor->IsA<AUnit>())// && Cast<AUnit>(Actor)->GetTeam() != GetTeam()) // 过滤敌人类型
         {
-            detectedEnemies.Add(Actor);
+            detectedEnemies.Add(actor);
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Find!"));
         }
     }
 }

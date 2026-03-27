@@ -11,6 +11,16 @@ AUnit::AUnit()
 
 }
 
+uint64_t AUnit::GetTeam() const
+{
+	return team;
+}
+
+void AUnit::SetTeam(uint64_t in_team)
+{
+	team = in_team;
+}
+
 // Called when the game starts or when spawned
 void AUnit::BeginPlay()
 {
@@ -34,6 +44,7 @@ void AUnit::OnHit(uint64_t damage)
 	}
 	if (damage > hp) {
 		hp = 0;
+		Destroy();
 	} else {
 		hp -= damage;
 	}

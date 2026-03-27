@@ -27,7 +27,6 @@ public:
 protected:
     virtual void BeginPlay() override;
 
-
     /** 当前锁定目标 */
     UPROPERTY()
     AActor* currentTarget;
