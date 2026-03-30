@@ -17,8 +17,8 @@ class UTurretSocketComponent : public UStaticMeshComponent
 public:
     UTurretSocketComponent();
 
-    /** 尝试开火，由炮塔每帧调用 */
-    void TryFire(float DeltaTime);
+    /** 尝试开火，由炮塔每帧调用，如果成功开火则返回true，否则返回false */
+    bool TryFire(float DeltaTime);
 
     /** 所属炮塔 */
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

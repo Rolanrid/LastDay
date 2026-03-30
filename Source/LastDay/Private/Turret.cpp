@@ -20,9 +20,16 @@ ATurret::ATurret()
 
     if (cylinderMeshAsset.Succeeded()) {
         turretRoot->SetStaticMesh(cylinderMeshAsset.Object);
+        turretRoot->SetNotifyRigidBodyCollision(true);
+        // 确保碰撞启用为 Query and Physics（默认就是，但可显式设置）
+        turretRoot->BodyInstance.SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+        // 关闭碰撞事件通知（关键！）
+        turretRoot->SetNotifyRigidBodyCollision(false);
+        // 可选：确保碰撞预设正确
+        turretRoot->SetCollisionProfileName(TEXT("BlockAllDynamic"));
     } else {
         // 如果加载失败，可以在日志中输出警告
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire!"));
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Find Cylinder failed!"));
     }
 
     for (int32 i = 0; i < 2; ++i) {
@@ -77,8 +84,11 @@ void ATurret::UpdateDetection()
         AActor* actor = overlap.GetActor();
         if (actor && actor->IsA<AUnit>())// && Cast<AUnit>(Actor)->GetTeam() != GetTeam()) // 过滤敌人类型
         {
+            if (detectedEnemies.Find(actor)) {
+                continue;
+            }
             detectedEnemies.Add(actor);
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Find!"));
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Find!"));
         }
     }
 }

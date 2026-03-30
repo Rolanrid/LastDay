@@ -25,12 +25,12 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-	virtual void OnHit(uint64_t damage);
+	virtual void Hitted(uint64_t damage);
 
 private:
 	uint64_t id;
 	std::string name;
 	uint64_t team;
-	uint64_t hp; // 应该用一个component来承载
+	uint64_t hp;
 	uint64_t armor;
 };

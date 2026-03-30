@@ -11,6 +11,7 @@ UTurretSocketComponent::UTurretSocketComponent()
 {
     // 设置组件的默认属性
     PrimaryComponentTick.bCanEverTick = false;
+	fireRange = 800.0f;
 
     // 设置碰撞预设（可选）
     SetCollisionProfileName(TEXT("BlockAllDynamic"));
@@ -35,7 +36,7 @@ void UTurretSocketComponent::BeginPlay()
     }
 }
 
-void UTurretSocketComponent::TryFire(float deltaTime)
+bool UTurretSocketComponent::TryFire(float deltaTime)
 {
     if (cooldownRemaining > 0.0f)
     {
@@ -44,11 +45,12 @@ void UTurretSocketComponent::TryFire(float deltaTime)
 
     // 寻找目标
     currentTarget = FindTargetInCone();
-    if (currentTarget && cooldownRemaining <= 0.0f)
-    {
+    if (currentTarget && cooldownRemaining <= 0.0f) {
         Fire();
         cooldownRemaining = ownerTurret ? ownerTurret->fireCooldown : 0.5f;
+        return true;
     }
+    return false;
 }
 
 AActor* UTurretSocketComponent::FindTargetInCone()
@@ -81,11 +83,10 @@ AActor* UTurretSocketComponent::FindTargetInCone()
     FVector SocketLoc = GetComponentLocation();
     FVector Forward = GetForwardVector();
 
-    for (const FOverlapResult& overlap : overlaps)
-    {
+    for (const FOverlapResult& overlap : overlaps) {
         AActor* Actor = overlap.GetActor();
-        if (Actor && Actor->IsA<ATurret>()) // 过滤
-        {
+        if (Actor && Actor->IsA<AUnit>()) { // 过滤
+            UE_LOG(LogTemp, Warning, TEXT("Get An Unit"));
             FVector DirToTarget = Actor->GetActorLocation() - SocketLoc;
             float Dist = DirToTarget.Size();
             if (Dist > fireRange) continue;
@@ -118,10 +119,9 @@ void UTurretSocketComponent::Fire()
         SpawnLocation,
         SpawnRotation
     );
-    if (Projectile)
-    {
+    if (Projectile) {
         Projectile->SetOwner(GetOwner()); // 设置炮塔为所有者，以便忽略友伤等
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Fire!"));
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Fire!"));
         // TODO Projectile->FireInDirection(SpawnRotation.Vector()); // 子弹自行移动
     }
 }
