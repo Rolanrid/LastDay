@@ -43,12 +43,8 @@ protected:
 	float detectionRadius;
 
 private:
-	// 根组件（用默认子对象方式创建）
-	UPROPERTY(VisibleAnywhere)
-	USceneComponent* rootScene;
-
 	/** 所有发射口共享的敌人集合（可选，用于优化检测） */
-	TArray<AActor*> detectedEnemies;
+	TSet<AActor*> detectedEnemies;
 
 	void UpdateDetection();
 };

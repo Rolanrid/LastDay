@@ -35,7 +35,7 @@ void AUnit::Tick(float DeltaTime)
 
 }
 
-void AUnit::OnHit(uint64_t damage)
+void AUnit::Hitted(uint64_t damage)
 {
 	if (damage > armor) {
 		damage -= armor;
