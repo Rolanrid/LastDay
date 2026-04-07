@@ -5,8 +5,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-// 【注意】：请把下面这行改成你项目里真正的 Unit 头文件路径哦！
-// #include "Unit.h" 
+#include "Unit.h" 
 
 ABaseProjectile::ABaseProjectile()
 {
@@ -25,7 +24,8 @@ ABaseProjectile::ABaseProjectile()
 	RootComponent = CollisionComp;
 
 	// 2. 设置模型组件
-	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ProjectileMesh"));
+	ProjectileMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("/Engine/BasicShapes/Cylinder")); // 暂用球替代
+	ProjectileMesh->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
 	ProjectileMesh->SetupAttachment(RootComponent);
 	// 模型不需要物理碰撞，碰撞全靠外面的球
 	ProjectileMesh->SetCollisionProfileName(TEXT("NoCollision"));
@@ -34,7 +34,7 @@ ABaseProjectile::ABaseProjectile()
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->bRotationFollowsVelocity = true; // 子弹永远头朝向飞行方向
-	ProjectileMovement->ProjectileGravityScale = 0.0f; // 设为 0 就是直线飞行，不往下掉
+	ProjectileMovement->ProjectileGravityScale = 0.0f; // 重力缩放系数
 	// 注意：初始速度我们先不设，等炮塔调用 FireProjectile 时再赋给它！
 }
 
@@ -53,7 +53,7 @@ void ABaseProjectile::Tick(float DeltaTime)
 // ==========================================
 // 功能 1：炮塔调用子弹的接口
 // ==========================================
-void ABaseProjectile::FireProjectile(const FVector& ShootDirection, float ShootSpeed, AActor* Shooter)
+void ABaseProjectile::FireProjectile(AUnit* Shooter, float ShootSpeed)
 {
 	if (ProjectileMovement)
 	{
@@ -65,17 +65,9 @@ void ABaseProjectile::FireProjectile(const FVector& ShootDirection, float ShootS
 		}
 
 		// 赋予速度和方向，它自己就会飞啦！
-		ProjectileMovement->Velocity = ShootDirection.GetSafeNormal() * ShootSpeed;
+		ProjectileMovement->InitialSpeed = ShootSpeed;
+		ProjectileMovement->ProjectileGravityScale = 1.0f; // 重力缩放系数
 
-		// 功能 2.1：子弹状态无效判定
-		// --- 原来根据距离算寿命的代码（先注释掉保留） ---
-		// if (ShootSpeed > 0.f)
-		// {
-		// 	float LifeTime = MaxRange / ShootSpeed;
-		// 	SetLifeSpan(LifeTime); 
-		// }
-
-		// --- 现在暂时使用的固定寿命判定（解答你的第2点要求） ---
 		SetLifeSpan(5.0f);
 	}
 }
@@ -96,7 +88,7 @@ void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		if (HitUnit)
 		{
 			// 按照朴素的想法，调用 Unit 里面的扣血方法，把 Damage 传过去
-			HitUnit->OnHit(Damage);
+			HitUnit->Hitted(Damage);
 
 			// 也可以用 UE5 官方的伤害传递方法（更推荐）：
 			// UGameplayStatics::ApplyDamage(OtherActor, Damage, GetInstigatorController(), this, UDamageType::StaticClass());
@@ -106,4 +98,26 @@ void ABaseProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UP
 		// 不管打中什么，最后都直接销毁子弹
 		Destroy();
 	}
+}
+
+ABaseProjectile* SpawnProjectile(UWorld* World, AUnit* Shooter, FVector Location, FRotator Rotation, float Speed)
+{
+	if (!World || !Shooter)
+	{
+		return nullptr;
+	}
+
+	// 生成 Actor
+	ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(Location, Rotation);
+	if (!Projectile)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Spawn Projectile!"));
+		return nullptr;
+	}
+
+	Projectile->SetActorLocation(Location);
+	Projectile->SetActorRotation(Rotation); // 旋转使圆柱体指向 X 轴
+	// 调用初始化函数设置参数
+	Projectile->FireProjectile(Shooter, Speed);
+	return Projectile;
 }

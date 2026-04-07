@@ -88,7 +88,7 @@ void ATurret::UpdateDetection()
                 continue;
             }
             detectedEnemies.Add(actor);
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Find!"));
+            // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Find!"));
         }
     }
 }

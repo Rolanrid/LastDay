@@ -60,7 +60,7 @@ public:
 
 	// 接口：炮塔调用子弹开火！(传入飞行方向、速度、发射它的塔)
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void FireProjectile(const FVector& ShootDirection, float ShootSpeed, AActor* Shooter);
+	void FireProjectile(AUnit* Shooter, float ShootSpeed);
 
 	// 碰撞绑定的函数：打到实体或环境时触发
 	UFUNCTION()
@@ -71,3 +71,6 @@ private:
 	UPROPERTY()
 	AActor* MyShooter;
 };
+
+// 静态工厂方法
+ABaseProjectile* SpawnProjectile(UWorld* World, AUnit* Shooter, FVector Location, FRotator Rotation, float Speed);

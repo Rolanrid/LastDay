@@ -12,6 +12,7 @@ UTurretSocketComponent::UTurretSocketComponent()
     // 设置组件的默认属性
     PrimaryComponentTick.bCanEverTick = false;
 	fireRange = 800.0f;
+	fireAngle = 60.0f;
 
     // 设置碰撞预设（可选）
     SetCollisionProfileName(TEXT("BlockAllDynamic"));
@@ -47,7 +48,6 @@ bool UTurretSocketComponent::TryFire(float deltaTime)
     currentTarget = FindTargetInCone();
     if (currentTarget && cooldownRemaining <= 0.0f) {
         Fire();
-        cooldownRemaining = ownerTurret ? ownerTurret->fireCooldown : 0.5f;
         return true;
     }
     return false;
@@ -86,18 +86,20 @@ AActor* UTurretSocketComponent::FindTargetInCone()
     for (const FOverlapResult& overlap : overlaps) {
         AActor* Actor = overlap.GetActor();
         if (Actor && Actor->IsA<AUnit>()) { // 过滤
-            UE_LOG(LogTemp, Warning, TEXT("Get An Unit"));
             FVector DirToTarget = Actor->GetActorLocation() - SocketLoc;
             float Dist = DirToTarget.Size();
-            if (Dist > fireRange) continue;
-
+            if (Dist > fireRange)
+            {
+                continue;
+            }
             DirToTarget.Normalize();
             float Dot = FVector::DotProduct(Forward, DirToTarget);
             float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
-            if (Angle <= fireAngle)
-            {
-                return Actor; // 返回第一个符合条件的
-            }
+            // if (Angle > fireAngle) 角度判定有怪问题，先不管
+            // {
+            //     continue;
+            // }
+            return Actor; // 返回第一个符合条件的
         }
     }
     return nullptr;
@@ -111,17 +113,10 @@ void UTurretSocketComponent::Fire()
     if (!World) return;
 
     FVector SpawnLocation = GetComponentLocation();
-    FRotator SpawnRotation = (currentTarget->GetActorLocation() - SpawnLocation).Rotation();
+    FRotator SpawnRotation = GetComponentRotation();
 
-    // 生成子弹
-    ABaseProjectile* Projectile = World->SpawnActor<ABaseProjectile>(
-        projectileClass,
-        SpawnLocation,
-        SpawnRotation
-    );
-    if (Projectile) {
-        Projectile->SetOwner(GetOwner()); // 设置炮塔为所有者，以便忽略友伤等
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Fire!"));
-        // TODO Projectile->FireInDirection(SpawnRotation.Vector()); // 子弹自行移动
-    }
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Fire!"));
+	SpawnProjectile(World, Cast<AUnit>(GetOwner()), SpawnLocation, SpawnRotation, projectileSpeed);
+    cooldownRemaining = ownerTurret ? ownerTurret->fireCooldown : 0.5f;
+
 }
