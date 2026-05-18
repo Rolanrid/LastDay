@@ -81,7 +81,9 @@ AActor* UTurretSocketComponent::FindTargetInCone()
 
     // 过滤出敌人，并检查是否在扇形内
     FVector SocketLoc = GetComponentLocation();
+    UE_LOG(LogTemp, Warning, TEXT("SocketLoc: %s"), *SocketLoc.ToString());
     FVector Forward = GetForwardVector();
+    UE_LOG(LogTemp, Warning, TEXT("Forward: %s"), *Forward.ToString());
 
     for (const FOverlapResult& overlap : overlaps) {
         AActor* Actor = overlap.GetActor();
@@ -95,7 +97,7 @@ AActor* UTurretSocketComponent::FindTargetInCone()
             DirToTarget.Normalize();
             float Dot = FVector::DotProduct(Forward, DirToTarget);
             float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot));
-            // if (Angle > fireAngle) 角度判定有怪问题，先不管
+            // if (Angle > fireAngle) // 角度判定有怪问题，先不管
             // {
             //     continue;
             // }
@@ -107,10 +109,16 @@ AActor* UTurretSocketComponent::FindTargetInCone()
 
 void UTurretSocketComponent::Fire()
 {
-    if (!projectileClass || !currentTarget) return;
+    if (!projectileClass || !currentTarget)
+    {
+        return;
+    }
 
     UWorld* World = GetWorld();
-    if (!World) return;
+    if (!World)
+    {
+        return;
+    }
 
     FVector SpawnLocation = GetComponentLocation();
     FRotator SpawnRotation = GetComponentRotation();

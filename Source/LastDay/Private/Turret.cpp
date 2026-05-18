@@ -1,46 +1,48 @@
-#include "Turret.h"
-#include "TurretSocketComponent.h"
-#include "Engine/OverlapResult.h"
-#include "Engine/World.h"
+#include "Turret.h"  
+#include "TurretSocketComponent.h"  
+#include "Engine/OverlapResult.h"  
+#include "Engine/World.h"  
+#include "BaseProjectile.h"
 
-ATurret::ATurret()
-{
-    PrimaryActorTick.bCanEverTick = true;
-    detectionRadius = 1000.0f;
-    fireCooldown = 0.5f;
+ATurret::ATurret()  
+{  
+   PrimaryActorTick.bCanEverTick = true;  
+   detectionRadius = 1000.0f;  
+   fireCooldown = 0.5f;  
 
-    // 创建静态网格体组件，并设为根组件
-    turretRoot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CylinderMesh"));
-    RootComponent = turretRoot;
+   // 创建静态网格体组件，并设为根组件  
+   turretRoot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CylinderMesh"));  
+   RootComponent = turretRoot;  
+   projectileClass = ABaseProjectile::StaticClass();  
 
-    // 加载引擎内置的圆柱体网格体
-    static ConstructorHelpers::FObjectFinder<UStaticMesh> cylinderMeshAsset(
-        TEXT("/Engine/BasicShapes/Cylinder")
-    );
+   // 加载引擎内置的圆柱体网格体  
+   static ConstructorHelpers::FObjectFinder<UStaticMesh> cylinderMeshAsset(  
+       TEXT("/Engine/BasicShapes/Cylinder")  
+   );  
 
-    if (cylinderMeshAsset.Succeeded()) {
-        turretRoot->SetStaticMesh(cylinderMeshAsset.Object);
-        turretRoot->SetNotifyRigidBodyCollision(true);
-        // 确保碰撞启用为 Query and Physics（默认就是，但可显式设置）
-        turretRoot->BodyInstance.SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-        // 关闭碰撞事件通知（关键！）
-        turretRoot->SetNotifyRigidBodyCollision(false);
-        // 可选：确保碰撞预设正确
-        turretRoot->SetCollisionProfileName(TEXT("BlockAllDynamic"));
-    } else {
-        // 如果加载失败，可以在日志中输出警告
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Find Cylinder failed!"));
-    }
+   if (cylinderMeshAsset.Succeeded()) {  
+       turretRoot->SetStaticMesh(cylinderMeshAsset.Object);  
+       turretRoot->SetNotifyRigidBodyCollision(true);  
+       // 确保碰撞启用为 Query and Physics（默认就是，但可显式设置）  
+       turretRoot->BodyInstance.SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);  
+       // 关闭碰撞事件通知（关键！）  
+       turretRoot->SetNotifyRigidBodyCollision(false);  
+       // 可选：确保碰撞预设正确  
+       turretRoot->SetCollisionProfileName(TEXT("BlockAllDynamic"));  
+   } else {  
+       // 如果加载失败，可以在日志中输出警告  
+       GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Find Cylinder failed!"));  
+   }  
 
-    for (int32 i = 0; i < 2; ++i) {
-        FName socketName = *FString::Printf(TEXT("TurretSocket_%d"), i);
-        UTurretSocketComponent* socket = CreateDefaultSubobject<UTurretSocketComponent>(socketName);
-        socket->SetupAttachment(RootComponent);
-        socket->SetRelativeLocation(FVector(10, (i * 40 - 20), 40));
-        socket->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f)); // 旋转使圆柱体指向 X 轴
-        socket->SetRelativeScale3D(FVector(0.1f, 0.1f, 1.0f)); // 缩放粗细：保持长度（X）不变，径向（Y、Z）缩小到 0.1
-        sockets.Add(socket);
-    }
+   for (int32 i = 0; i < 2; ++i) {  
+       FName socketName = *FString::Printf(TEXT("TurretSocket_%d"), i);  
+       UTurretSocketComponent* socket = CreateDefaultSubobject<UTurretSocketComponent>(socketName);  
+       socket->SetupAttachment(RootComponent);  
+       socket->SetRelativeLocation(FVector(10, (i * 40 - 20), 40));  
+       socket->SetRelativeRotation(FRotator(-90.0f, 0.0f, 0.0f)); // 旋转使圆柱体指向 X 轴  
+       socket->SetRelativeScale3D(FVector(0.1f, 0.1f, 1.0f)); // 缩放粗细：保持长度（X）不变，径向（Y、Z）缩小到 0.1  
+       sockets.Add(socket);  
+   }  
 }
 
 void ATurret::BeginPlay()
