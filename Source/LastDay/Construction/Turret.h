@@ -15,36 +15,36 @@ class LASTDAY_API ATurret : public AUnit
 public:
 	ATurret();
 
-	/** ×Óµ¯Àà */
+	/** å­å¼¹ç±» */
 	UPROPERTY(EditDefaultsOnly, Category = "Turret|Combat")
-	TSubclassOf<class ABaseProjectile> projectileClass;
+	TSubclassOf<class ABaseProjectile> ProjectileClass;
 
-	/** ¿ª»ğ¼ä¸ô£¨Ãë£© */
+	/** å¼€ç«é—´éš”ï¼ˆç§’ï¼‰ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Combat")
-	float fireCooldown;
+	float FireCooldown;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UStaticMeshComponent* turretRoot; // TODO Ó¦¸ÃÊÇÒ»¸öÄ£ĞÍ£¬ÕâÀïÊÇ°×Ä£
+	UStaticMeshComponent* TurretRoot; // TODO åº”è¯¥æ˜¯ä¸€ä¸ªæ¨¡å‹ï¼Œè¿™é‡Œæ˜¯ç™½æ¨¡
 
-	/** ËùÓĞ·¢Éä¿Ú×é¼ş */
+	/** æ‰€æœ‰å‘å°„å£ç»„ä»¶ */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Turret")
-	TArray<UTurretSocketComponent*> sockets;
+	TArray<UTurretSocketComponent*> Sockets;
 
-	/** Ìí¼Ó·¢Éä¿Ú×é¼ş£¨¿ÉÔÚ±à¼­Æ÷»òÔËĞĞÊ±µ÷ÓÃ£© */
+	/** æ·»åŠ å‘å°„å£ç»„ä»¶ï¼ˆå¯åœ¨ç¼–è¾‘å™¨æˆ–è¿è¡Œæ—¶è°ƒç”¨ï¼‰ */
 	UFUNCTION(BlueprintCallable, Category = "Turret")
 	void AddSocket(UTurretSocketComponent *Socket);
 
-	/** µĞÈË¼ì²â·¶Î§£¨ÓÃÓÚ·¢Éä¿Ú¶ÀÁ¢¼ì²â£© */
+	/** æ•Œäººæ£€æµ‹èŒƒå›´ï¼ˆç”¨äºå‘å°„å£ç‹¬ç«‹æ£€æµ‹ï¼‰ */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Turret|Detection")
-	float detectionRadius;
+	float DetectionRadius;
 
 private:
-	/** ËùÓĞ·¢Éä¿Ú¹²ÏíµÄµĞÈË¼¯ºÏ£¨¿ÉÑ¡£¬ÓÃÓÚÓÅ»¯¼ì²â£© */
-	TSet<AActor*> detectedEnemies;
+	/** æ‰€æœ‰å‘å°„å£å…±äº«çš„æ•Œäººé›†åˆï¼ˆå¯é€‰ï¼Œç”¨äºä¼˜åŒ–æ£€æµ‹ï¼‰ */
+	TSet<AActor*> DetectedEnemies;
 
 	void UpdateDetection();
 };

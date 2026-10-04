@@ -23,8 +23,16 @@ public class LastDay : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
 
+		// 编辑器下需要 AssetRegistry 来注册自动生成的材质资源
+		if (Target.bBuildEditor)
+		{
+			PrivateDependencyModuleNames.AddRange(new string[] { "AssetRegistry" });
+		}
+
 		PublicIncludePaths.AddRange(new string[] {
 			"LastDay",
+			"LastDay/Unit",
+			"LastDay/Construction",
 			"LastDay/Variant_Horror",
 			"LastDay/Variant_Horror/UI",
 			"LastDay/Variant_Shooter",
