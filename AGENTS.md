@@ -7,7 +7,8 @@ Single UE5 module `LastDay` with four logical areas sharing no explicit module b
 | Area | Directory | Key classes |
 |---|---|---|
 | Core | `Source/LastDay/` | `ALastDayGameMode`, `ALastDayCharacter`, `ALastDayPlayerController`, `ALastDayCameraManager` |
-| Gameplay | `Source/LastDay/Public/` | `AUnit`, `ATurret`, `UTurretSocketComponent`, `ABaseProjectile` |
+| Unit (base) | `Source/LastDay/Unit/` | `AUnit` |
+| Construction | `Source/LastDay/Construction/` | `ATurret`, `UTurretSocketComponent`, `ABaseProjectile` |
 | Horror variant | `Source/LastDay/Variant_Horror/` | Stamina sprinting, flashlight |
 | Shooter variant | `Source/LastDay/Variant_Shooter/` | Weapons, AI (StateTree), NPC spawner, pickups, team scores |
 

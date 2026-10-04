@@ -58,19 +58,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float MaxRange;
 
-	// 接口：炮塔调用子弹开火！(传入飞行方向、速度、发射它的塔)
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-	void FireProjectile(AUnit* Shooter, float ShootSpeed);
+	// 记录一下是谁发射了这颗子弹（由工厂函数 FireProjectile 在生成时写入）
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	AActor* MyShooter;
 
 	// 碰撞绑定的函数：打到实体或环境时触发
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-private:
-	// 记录一下是谁发射了这颗子弹
-	UPROPERTY()
-	AActor* MyShooter;
 };
 
-// 静态工厂方法
-ABaseProjectile* SpawnProjectile(UWorld* World, AUnit* Shooter, FVector Location, FRotator Rotation, float Speed);
+// 工厂函数：延迟生成子弹，并在 FinishSpawning() 之前完成初始化（初速度、忽略发射者、生命期）
+ABaseProjectile* FireProjectile(UWorld* World, TSubclassOf<ABaseProjectile> ProjectileClass, AUnit* Shooter, FVector Location, FRotator Rotation, float Speed);
