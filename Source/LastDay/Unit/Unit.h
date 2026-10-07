@@ -9,6 +9,21 @@
 
 class UBoxComponent;
 
+/** 阵营：玩家侧（建筑、炮塔）和怪物侧，用来判敌我 */
+UENUM(BlueprintType)
+enum class EUnitTeam : uint8
+{
+	Player  UMETA(DisplayName = "玩家"),
+	Monster UMETA(DisplayName = "怪物")
+};
+
+/**
+ * 单位基类：有血量、护甲、队伍。
+ *
+ * 受伤统一走引擎标准伤害流程：外面的武器/子弹/敌人用
+ * UGameplayStatics::ApplyDamage / ApplyPointDamage / ApplyRadialDamage 发起伤害，
+ * 最终都会落到这里的 TakeDamage 上，不再自定义 Hitted 之类的接口。
+ */
 UCLASS()
 class LASTDAY_API AUnit : public AActor
 {
@@ -21,10 +36,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	/** 标准受击入口：ApplyDamage 系列接口最终都会调用到这里 */
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 	uint64_t GetTeam() const;
 	void SetTeam(uint64_t team);
 
-	virtual void Hitted(uint64_t damage);
+	/** 当前血量 */
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHealth() const { return Health; }
 
 protected:
 	// Called when the game starts or when spawned
@@ -41,10 +61,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UBoxComponent* CollisionComponent;
 
+	/** 当前血量 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float Health;
+
+	/** 最大血量：出场时按这个值补满 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float MaxHealth;
+
+	/** 护甲：每次受击固定减免这么多伤害（打不穿也至少掉 1 点） */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	float Armor;
+
 private:
 	uint64_t Id;
 	std::string Name;
 	uint64_t Team;
-	uint64_t Hp;
-	uint64_t Armor;
 };
