@@ -15,6 +15,7 @@ public class LastDay : ModuleRules
 			"InputCore",
 			"EnhancedInput",
 			"AIModule",
+			"NavigationSystem",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
 			"UMG",
@@ -31,14 +32,17 @@ public class LastDay : ModuleRules
 
 		PublicIncludePaths.AddRange(new string[] {
 			"LastDay",
+			"LastDay/Demo",
 			"LastDay/Unit",
 			"LastDay/Construction",
+			"LastDay/Explosions",
+			"LastDay/Projectiles",
+			"LastDay/Weapons",
 			"LastDay/Variant_Horror",
 			"LastDay/Variant_Horror/UI",
 			"LastDay/Variant_Shooter",
 			"LastDay/Variant_Shooter/AI",
-			"LastDay/Variant_Shooter/UI",
-			"LastDay/Variant_Shooter/Weapons"
+			"LastDay/Variant_Shooter/UI"
 		});
 
 		// Uncomment if you are using Slate UI
